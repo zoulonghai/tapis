@@ -1,0 +1,19 @@
+Install
+-----------
+ python setup.py build
+
+ python setup.py install
+
+
+**Note**:
+
+To install to a local set of python libraries
+use --home=/PATH/TO/LOCAL/LIBRARY
+
+Required Packages
+-------------------------
+- SpliceGrapher
+- bx-python
+- pysam
+- matplotlib
+- NumPy
