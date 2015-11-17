@@ -1,5 +1,24 @@
 #! /usr/bin/env python
 
+#
+#    Helper script for aligning PacBio reads: cleans reads using reference sequence
+#
+#    Copyright (C) 2015  Michael Hamilton
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
 import pysam
 from argparse import ArgumentParser, ArgumentTypeError
 import os, sys, numpy
@@ -35,7 +54,7 @@ parser.add_argument('-t', '--thresh', dest="thresh",
                     help='Mapping quality threshold')
 
 parser.add_argument('-e', '--edr', dest="edr",
-                    action='store', type=float, default=1.0,
+                    action='store', type=float, default=0.10,
                     help='Edit distance ratio threshold')
 
 parser.add_argument('reference', action='store', 
@@ -330,7 +349,7 @@ for read in bamfile:
                 print i, len(read.cigar)
                 print t
                 print read.cigar
-
+    totN += read.qlen
     if ambSJ:
         filtered += 1
         filteredfile.write('%s_ambSJ\n' % (read.qname))
@@ -343,14 +362,14 @@ for read in bamfile:
 
     #ed = rmismatches + sum(rdeletions) + sum(rinsertions) + rmismatchesSJ + sum(rdeletionsSJ) + sum( rinsertionsSJ)
 
-    totN += read.qlen
-    mismatches += rmismatches
-    deletions.extend(rdeletions)
-    insertions.extend(rinsertions)
     if float(ed) / len(read.query) > args.edr:
         filtered += 1
         filteredfile.write('>%s_edr\n' % (read.qname))
         continue
+
+    mismatches += rmismatches
+    deletions.extend(rdeletions)
+    insertions.extend(rinsertions)
 
     mismatchesSJ += rmismatchesSJ
     deletionsSJ.extend(rdeletionsSJ)
@@ -395,7 +414,7 @@ indicator.finish()
 if args.verbose:
     mismatchesPerc = float(mismatches)/totN * 100 
     mismatchesSJPerc = float(mismatchesSJ)/totSJ * 100
-    deletionsPerc = float(sum(deletions))/totN * 100
+    deletionsPerc = float(len(deletions))/totN * 100
     deletionsSJPerc = float(len(deletionsSJ))/totSJ* 100
     if len(deletions) == 0:
         deletionsMean = 0
@@ -404,10 +423,9 @@ if args.verbose:
         deletionsSJMean = 0
     else:    deletionsSJMean = numpy.mean(deletionsSJ)
 
-    insertionsPerc = float(sum(insertions))/totN* 100
+    insertionsPerc = float(len(insertions))/totN* 100
     insertionsSJPerc = float(len(insertionsSJ))/totSJ* 100
     if len(insertions) == 0: insertionsMean = 0
-
     else:     insertionsMean = numpy.mean(insertions)
     if len(insertionsSJ) == 0: insertionsSJMean = 0
     else:     insertionsSJMean = numpy.mean(insertionsSJ)
