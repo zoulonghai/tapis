@@ -25,3 +25,8 @@ Required Packages
 - pysam
 - matplotlib
 - NumPy
+
+Running
+---------
+ - Align reads to reference genome using alignPacBio.py
+ - Run analysis on aligned reads using run_tapis.py
