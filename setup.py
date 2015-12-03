@@ -12,7 +12,7 @@ SCRIPTS  = ['scripts/run_tapis.py',
             'scripts/convertSam.py'
             ]
 
-PACKAGES = [ 'TAPIS'
+PACKAGES = [ 'tapis'
              ]
 
 
