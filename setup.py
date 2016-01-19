@@ -8,7 +8,8 @@ from isoform sequencing
 from distutils.core import setup
 import sys
 SCRIPTS  = ['scripts/run_tapis.py',
-            'scripts/polyA.py',
+            'scripts/cleanAlignments.py',
+            'scripts/alignPacBio.py',
             'scripts/convertSam.py'
             ]
 
