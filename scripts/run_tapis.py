@@ -903,7 +903,7 @@ def writeGtf(geneIsos):
                      gene.id,
                      gene.id
                  ))
-                    fout.write('%s\tprotein_coding\tCDS\t%d\t%d\t.\t%s\t.\t gene_id "%s"; transcript_id "%s"; exon_number "%d"; gene_name "%s"; transcript_name "%s";\n' %
+                    fout.write('%s\tprotein_coding\tCDS\t%d\t%d\t.\t%s\t.\t gene_id "%s"; transcript_id "%s"; exon_number "%d"; gene_name "%s"; transcript_name "%s"; protein_id "%s";\n' %
                     (gene.chromosome,
                      exon[0],
                      exon[1],
@@ -912,7 +912,8 @@ def writeGtf(geneIsos):
                      trans_id,
                      exonNum+1,
                      gene.id,
-                     gene.id
+                     gene.id,
+                     trans_id
                  ))
 
 
