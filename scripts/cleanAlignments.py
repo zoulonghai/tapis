@@ -412,10 +412,16 @@ for read in bamfile:
 outfile.close()
 indicator.finish()
 if args.verbose:
-    mismatchesPerc = float(mismatches)/totN * 100 
-    mismatchesSJPerc = float(mismatchesSJ)/totSJ * 100
+    mismatchesPerc = float(mismatches)/totN * 100
+    if totSJ == 0:
+        mismatchesSJPerc = 0
+        deletionsSJPerc = 0
+        insertionsSJPerc =0
+    else:
+        mismatchesSJPerc = float(mismatchesSJ)/totSJ * 100
+        deletionsSJPerc = float(len(deletionsSJ))/totSJ* 100
+        insertionsSJPerc = float(len(insertionsSJ))/totSJ* 100
     deletionsPerc = float(len(deletions))/totN * 100
-    deletionsSJPerc = float(len(deletionsSJ))/totSJ* 100
     if len(deletions) == 0:
         deletionsMean = 0
     else:    deletionsMean = float(numpy.mean(deletions))
@@ -424,7 +430,7 @@ if args.verbose:
     else:    deletionsSJMean = numpy.mean(deletionsSJ)
 
     insertionsPerc = float(len(insertions))/totN* 100
-    insertionsSJPerc = float(len(insertionsSJ))/totSJ* 100
+
     if len(insertions) == 0: insertionsMean = 0
     else:     insertionsMean = numpy.mean(insertions)
     if len(insertionsSJ) == 0: insertionsSJMean = 0
