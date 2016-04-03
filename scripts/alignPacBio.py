@@ -98,18 +98,6 @@ for epoch in xrange(args.iterations):
                         args.reference,
                         os.path.join(args.outdir,'%s_r%d.bam' % (base, epoch+1)), 
                     )
-    else:
-        cmd = CLEAN % ( args.edr,
-                        0 if epoch+1 < args.iterations else 40, 
-                        os.path.join(args.outdir,'%s_fixed_r%d.fa' % (base, epoch+1)), 
-                        os.path.join(args.outdir,'%s_junctions_r%d.fa' % (base, epoch+1)), 
-                        os.path.join(args.outdir,'%s_fixed_r%d.sam' % (base, epoch+1)), 
-                        os.path.join(args.outdir,'%s_unaligned_r%d.fa' % (base, epoch+1)),
-                        os.path.join(args.outdir,'%s_filtered_r%d.fa' % (base, epoch+1)),
-                        args.reference,
-                        os.path.join(args.outdir,'%s_r%dAligned.bam' % (base, epoch+1)), 
-                    )
-
     if epoch == 0:
         cmd += ' -a 10'
     if args.verbose:
