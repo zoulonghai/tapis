@@ -465,13 +465,19 @@ if args.verbose:
     sjitems.sort(key=lambda x: x[1], reverse=1)
     junction_ofile = open( args.junctions_output, 'w' )
     for pair in sjitems[:3]:
-        sys.stderr.write('%s: %d (%0.2f%%)\n' % ( pair[0], pair[1], pair[1]/float(sSJ)*100))
-        junction_ofile.write('%s: %d (%0.2f%%)\n' % ( pair[0], pair[1], pair[1]/float(sSJ)*100))
+        if sSJ == 0:
+            sys.stderr.write('No stranded splice junction\n'):
+        else:
+            sys.stderr.write('%s: %d (%0.2f%%)\n' % ( pair[0], pair[1], pair[1]/float(sSJ)*100))
+            junction_ofile.write('%s: %d (%0.2f%%)\n' % ( pair[0], pair[1], pair[1]/float(sSJ)*100))
     rem = 0
     for pair in sjitems[3:]:
         rem += pair[1]
-    sys.stderr.write('%s: %d (%0.2f%%)\n' % ( 'others', rem, rem/float(sSJ)*100))
-    junction_ofile.write('%s: %d (%0.2f%%)\n' % ( 'others', rem, rem/float(sSJ)*100))
+        if sSJ == 0:
+            pass
+        else:
+            sys.stderr.write('%s: %d (%0.2f%%)\n' % ( 'others', rem, rem/float(sSJ)*100))
+            junction_ofile.write('%s: %d (%0.2f%%)\n' % ( 'others', rem, rem/float(sSJ)*100))
     junction_ofile.close()
     sys.stderr.write('fixed: %d (%0.2f%%) mismatches %d (%0.2f%%) deletions (%0.2f BPs/del) %d (%0.2f%%) insertions (%0.2f BPs/ins)\n' % (mismatches, mismatchesPerc, len(deletions), deletionsPerc, deletionsMean, len(insertions), insertionsPerc, insertionsMean))
     if args.anchorAdjustLim > 0:
