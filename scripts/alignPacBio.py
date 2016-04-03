@@ -80,7 +80,7 @@ for epoch in xrange(args.iterations):
     if args.verbose:
         sys.stderr.write('Executing: %s\n' % cmd)
     status = subprocess.call(cmd,shell=1)
-    if epoch == 0:
+    if 1:
         cmd = CONVERT % (os.path.join(args.outdir,'%s_r%d.sam' % (base,epoch+1)) )
     if args.verbose:
         sys.stderr.write('Executing: %s\n' % cmd)
