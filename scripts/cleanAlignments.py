@@ -466,7 +466,7 @@ if args.verbose:
     junction_ofile = open( args.junctions_output, 'w' )
     for pair in sjitems[:3]:
         if sSJ == 0:
-            sys.stderr.write('No stranded splice junction\n'):
+            sys.stderr.write('No stranded splice junction\n')
         else:
             sys.stderr.write('%s: %d (%0.2f%%)\n' % ( pair[0], pair[1], pair[1]/float(sSJ)*100))
             junction_ofile.write('%s: %d (%0.2f%%)\n' % ( pair[0], pair[1], pair[1]/float(sSJ)*100))
