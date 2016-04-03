@@ -87,7 +87,7 @@ for epoch in xrange(args.iterations):
         cmd += ' -v'
 
     status = subprocess.call(cmd,shell=1)
-    if epoch == 0:
+    if 1:
         cmd = CLEAN % ( args.edr,
                         0 if epoch+1 < args.iterations else 40, 
                         os.path.join(args.outdir,'%s_fixed_r%d.fa' % (base, epoch+1)), 
