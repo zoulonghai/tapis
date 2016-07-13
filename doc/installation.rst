@@ -12,11 +12,11 @@ Version numbers correspond to those tested during development.
 - matplotlib_ (v1.3.1)
 - bx-python_ (v0.5.0)
 - NumPy_ (v1.8.2)
-- GMAP_ (v2015-07-23)
+- GMAP_ (2016-04-01) note: version 2015-07-23 is incompatible
 
 Download
 ========
-current release: v1.1.2
+current release: v1.2.1
 
 TAPIS is hosted on bitbucket https://bitbucket.org/comp_bio/tapis
 

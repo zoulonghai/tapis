@@ -14,7 +14,9 @@ long reads but it provides a method that cleans and aligns
 reads with high accuracy and efficiency. To align and clean reads
 use the following provided script :program:`alignPacBio.py`.  Before
 running the script, you will need to run :program:`gmap_build` to
-make a genome reference index.
+make a genome reference index.  Since version 1.2.1, the alignment script
+creates two files, an aligned bamfile and unaligned reads in a FASTA
+file (previous versions required merging of individual iterations of alignment/cleaning runs).
 
 .. program-output:: alignPacBio.py --help
 
