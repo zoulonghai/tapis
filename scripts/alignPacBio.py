@@ -56,9 +56,11 @@ parser.add_argument('fasta', action='store',
                     type=str, help='Reads to align')
 
 args = parser.parse_args()
-
+tempdir = os.path.join(args.outdir, 'temp_dir')
 if not os.path.exists(args.outdir):
     os.makedirs(args.outdir)
+if not os.path.exists(tempdir):
+    os.makedirs(tempdir)
              
 base = os.path.basename(args.fasta).split('.')[0]
 gmapIn = args.fasta
@@ -75,35 +77,55 @@ for epoch in xrange(args.iterations):
     if args.verbose:
         sys.stderr.write('Starting iteration: %d\n' % (epoch+1))
     cmd = GMAP % (args.indexesDir, args.indexName, args.maxIntron, args.procs, gmapIn, 
-                  os.path.join(args.outdir,'%s_r%d.sam' % (base,epoch+1)), 
-                  os.path.join(args.outdir,'%s_r%d.log' % (base,epoch+1)))
+                  os.path.join(tempdir,'%s_r%d.sam' % (base,epoch+1)), 
+                  os.path.join(tempdir,'%s_r%d.log' % (base,epoch+1)))
     if args.verbose:
         sys.stderr.write('Executing: %s\n' % cmd)
     status = subprocess.call(cmd,shell=1)
     if 1:
-        cmd = CONVERT % (os.path.join(args.outdir,'%s_r%d.sam' % (base,epoch+1)) )
+        cmd = CONVERT % (os.path.join(tempdir,'%s_r%d.sam' % (base,epoch+1)) )
     if args.verbose:
         sys.stderr.write('Executing: %s\n' % cmd)
         cmd += ' -v'
 
     status = subprocess.call(cmd,shell=1)
+    # Clean up samfiles and index files
+    cmd = 'rm %s' % (os.path.join(tempdir,'%s_r%d.sam' % (base,epoch+1)))
+    status = subprocess.call(cmd,shell=1)
+    cmd = 'rm %s' % (os.path.join(tempdir,'%s_r%d.bam.bai' % (base,epoch+1)))
+    status = subprocess.call(cmd,shell=1)
+    
     if 1:
         cmd = CLEAN % ( args.edr,
                         0 if epoch+1 < args.iterations else 40, 
-                        os.path.join(args.outdir,'%s_fixed_r%d.fa' % (base, epoch+1)), 
-                        os.path.join(args.outdir,'%s_junctions_r%d.fa' % (base, epoch+1)), 
-                        os.path.join(args.outdir,'%s_fixed_r%d.sam' % (base, epoch+1)), 
-                        os.path.join(args.outdir,'%s_unaligned_r%d.fa' % (base, epoch+1)),
-                        os.path.join(args.outdir,'%s_filtered_r%d.fa' % (base, epoch+1)),
+                        os.path.join(tempdir,'%s_fixed_r%d.fa' % (base, epoch+1)), 
+                        os.path.join(tempdir,'%s_junctions_r%d.fa' % (base, epoch+1)), 
+                        os.path.join(tempdir,'%s_fixed_r%d.bam' % (base, epoch+1)), 
+                        os.path.join(tempdir,'%s_unaligned_r%d.fa' % (base, epoch+1)),
+                        os.path.join(tempdir,'%s_filtered_r%d.fa' % (base, epoch+1)),
                         args.reference,
-                        os.path.join(args.outdir,'%s_r%d.bam' % (base, epoch+1)), 
+                        os.path.join(tempdir,'%s_r%d.bam' % (base, epoch+1)), 
                     )
     if epoch == 0:
         cmd += ' -a 10'
     if args.verbose:
         sys.stderr.write('Executing: %s\n' % cmd)
         cmd += ' -v'
+    
     status = subprocess.call(cmd,shell=1)
-    gmapIn = os.path.join(args.outdir,'%s_fixed_r%d.fa' % (base,epoch+1))
+    gmapIn = os.path.join(tempdir,'%s_fixed_r%d.fa' % (base,epoch+1))
+
+
+# clean up and merge filtered reads
+if args.verbose:
+    sys.stderr.write('Merging filtered alignments...\n')
+cmd = 'samtools merge %s %s/%s_fixed_r*.bam' % (os.path.join(args.outdir, 'aligned.bam'), tempdir, base)
+if args.verbose:
+    sys.stderr.write('Executing: %s' % (cmd))
+
+status = subprocess.call(cmd, shell=1)
+
+cmd = 'cp %s %s' % (os.path.join(tempdir,'%s_unaligned_r%d.fa' % (base, epoch)), os.path.join('unaligned.fa'))
+status = subprocess.call(cmd, shell=1)
 
 

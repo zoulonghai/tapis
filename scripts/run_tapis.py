@@ -43,7 +43,7 @@ parser.add_argument('-o', '--outdir', dest="outdir",
                     help='Output directory for TAPIS results, default=tapis_out')
 parser.add_argument('-t', '--trimMax', dest="trimMax",
                     action='store', type=int, default=5,
-                    help='Maximum length of read trimming to tolerate, default=5')
+                    help='Maximum length of read trimming to tolerate on 3\' end of reads, default=5')
 parser.add_argument('-w', '--w', dest="w",
                     action='store', type=int, default=5,
                     help='Width of peaks when searching for poly(A) sites, default=5')
@@ -194,9 +194,11 @@ def clusterToTranscripts( cluster, strand ):
     fl = [ ]
     for read in cluster:
         tDict = dict(read.tags)
-        if tDict['XF']:
+        if 'XR' not in tDict or 'XL' not in tDict:
+            sys.stderr.write('Warning: trimmed ends info not available, recommend running alignPacBio.py first!\n')
+        else:
             if (strand == '+' and tDict['XR'] < 5) or (strand == '-' and \
-               tDict['XL'] < 5):
+                                                       tDict['XL'] < 5):
                 fl.append(read)
     transcripts = [ ]
     # trusted reads
@@ -209,7 +211,7 @@ def clusterToTranscripts( cluster, strand ):
             transcripts.append( t )
     return transcripts
 
-def clusterReads(bamfile, cluster_treesP, cluster_treesN, readDict, cond):
+def clusterReads(bamfile, cluster_treesP, cluster_treesN, readDict):
     bamfile = pysam.Samfile(bamfile, 'rb')
     if args.verbose:
         sys.stderr.write('Clustering reads\n')
@@ -220,11 +222,17 @@ def clusterReads(bamfile, cluster_treesP, cluster_treesN, readDict, cond):
         end   = read.blocks[-1][1]
         tDict = dict(read.tags)
         # filter reads with too much trimming on 3' end
-        if tDict['XS'] == '+' and tDict['XR'] > 10 or \
-           tDict['XS'] == '-' and tDict['XL'] > 10 :
+        if 'XS' not in tDict:
+            sys.stderr.write('Warning: skipping read %s (strand orientation not available in alignment record)\n')
             continue
+        if 'XR' not in tDict or 'XL' not in tDict:
+            sys.stderr.write('Warning: trimmed ends info not available, recommend running alignPacBio.py first!\n')
+        else:
+            if tDict['XS'] == '+' and tDict['XR'] > args.trimMax or \
+               tDict['XS'] == '-' and tDict['XL'] > args.trimMax :
+                continue
         # no rjcts
-        read.setTag('XC', cond)
+        #read.setTag('XC', cond)
         readDict[clusterReads.c] = read
         if tDict['XS'] == '+':
             cluster_treesP[chrom].insert(start,end,clusterReads.c)
@@ -929,8 +937,7 @@ if __name__ == '__main__':
                                                                 clusterMembers))
     cluster_treesN = collections.defaultdict(lambda:ClusterTree(clusterDist, 
                                                                 clusterMembers))
-    clusterReads(args.bamfile, cluster_treesP, cluster_treesN, readDict,
-            'WT')
+    clusterReads(args.bamfile, cluster_treesP, cluster_treesN, readDict)
     keys = list(set.union(*[set(cluster_treesN.keys()), 
                             set(cluster_treesP.keys())]))
     
