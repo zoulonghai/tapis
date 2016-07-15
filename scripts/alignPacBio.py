@@ -125,7 +125,7 @@ if args.verbose:
 
 status = subprocess.call(cmd, shell=1)
 
-cmd = 'cp %s %s' % (os.path.join(tempdir,'%s_unaligned_r%d.fa' % (base, epoch)), os.path.join('unaligned.fa'))
-status = subprocess.call(cmd, shell=1)
+#cmd = 'cp %s %s' % (os.path.join(tempdir,'%s_unaligned_r%d.fa' % (base, epoch)), os.path.join('unaligned.fa'))
+#status = subprocess.call(cmd, shell=1)
 
 
