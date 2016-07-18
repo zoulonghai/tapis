@@ -10,7 +10,7 @@ from bx.intervals.cluster import ClusterTree
 import matplotlib
 matplotlib.use('agg')
 from matplotlib import pyplot as plt
-from matplotlib_venn import venn2, venn3
+#from matplotlib_venn import venn2, venn3
 ###################################################
 from SpliceGrapher.shared.utils       import *
 from SpliceGrapher.plot.PlotterConfig import *
