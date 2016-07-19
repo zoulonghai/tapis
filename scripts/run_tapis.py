@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-import pysam,os,numpy,collections
+import pysam,os,numpy,collections,subprocess
 from argparse import ArgumentParser, ArgumentTypeError
 from SpliceGrapher.formats.loader import loadGeneModels
 from SpliceGrapher.formats.GeneModel import *        
@@ -961,6 +961,7 @@ if __name__ == '__main__':
     if args.verbose:
         sys.stderr.write('Processing read clusters\n')
     indicator = ProgressIndicator(5000, verbose=args.verbose)
+    allgenes = 0
     for key in keys:
         if key in cluster_treesN:
             regions = cluster_treesN[key].getregions()
@@ -972,6 +973,7 @@ if __name__ == '__main__':
                 allReads += len(cluster)
                 start, end = region[:2]
                 refGenes = geneModel.getGenesInRange(key,start, end, strand='-')
+                allgenes += len(refGenes)
                 if len(refGenes) == 1:
                     geneReads[refGenes[0]].extend(cluster)
                     geneIsos[refGenes[0]].extend(isos)
@@ -995,6 +997,7 @@ if __name__ == '__main__':
                 allReads += len(cluster)
                 start, end = region[:2]
                 refGenes = geneModel.getGenesInRange(key,start,end,strand='+')
+                allgenes += len(refGenes)
                 if len(refGenes) == 1:
                     geneReads[refGenes[0]].extend(cluster)
                     geneIsos[refGenes[0]].extend(isos)
@@ -1011,7 +1014,7 @@ if __name__ == '__main__':
     if args.verbose:
         sys.stderr.write('Assembled %d transcripts\n' % len(allIsos))
         sys.stderr.write('%d (%0.2f%%) from novel genes\n' % (allNovel, float(allNovel)/len(allIsos)))
-        sys.stderr.write('%d (%0.2f%%) spanning multiple  genes\n' % (allMulti, float(allMulti)/len(allIsos)))
+        sys.stderr.write('%d (%0.2f%%) spanning multiple genes\n' % (allMulti, float(allMulti)/len(allIsos)))
     writeGtf(geneIsos)
     writeNovelGenes(novelClustersP, novelClustersN)
     
@@ -1024,3 +1027,23 @@ if __name__ == '__main__':
     polyA_analysis(polyAMap)
 
 
+    #compute AS statistics
+    if args.verbose:
+        sys.stderr.write('Computing alternative splicing statistics\n')
+
+    graphsdir = os.path.join(args.outdir, 'graphs')
+    if not os.path.exists(graphsdir):
+        os.makedirs(graphsdir)
+
+    cmd = 'gene_model_to_splicegraph.py -a -A -d %s -m %s' % (graphsdir, os.path.join(args.outdir,'assembled.gtf'))
+    if args.verbose:
+        cmd += ' -v'
+        sys.stderr.write('Executing %s\n' % (cmd) )
+    
+    subprocess.call(cmd,shell=1)
+
+    cmd = 'splicegraph_statistics.py -a %s -o %s' % (graphsdir, os.path.join(args.outdir, 'AS_statistics.txt'))
+    if args.verbose:
+        cmd += ' -v'
+        sys.stderr.write('Executing %s\n' % (cmd) )
+    subprocess.call(cmd,shell=1)
