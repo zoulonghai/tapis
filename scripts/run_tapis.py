@@ -756,9 +756,10 @@ def writeNovelGenes(novelClustersP, novelClustersN):
             maxpos  = max(x.blocks[-1][1] for x in cluster) 
             nid = '%s_%d_%d_+' % (key, minpos,maxpos)
             novelReads[nid] = len(cluster)
+            graph = clusterToGraphP(cluster, key,'none')
+            graph.annotate()
+
             if args.plot:
-                graph = clusterToGraphP(cluster, key,'none')
-                graph.annotate()
                 plotNovel(graph, cluster, os.path.join(args.outdir, 'novelGraphs', '%s.pdf'%nid))
             fout.write('%s\t%d\t%d\t+\t%d\t%s\n' % (key,
                                                     minpos,
@@ -774,9 +775,10 @@ def writeNovelGenes(novelClustersP, novelClustersN):
             maxpos  = max(x.blocks[-1][1] for x in cluster) 
             nid = '%s_%d_%d_-' % (key, minpos,maxpos)
             novelReads[nid] = len(cluster)
+            graph = clusterToGraphP(cluster, key,'none')
+            graph.annotate()
+
             if args.plot:
-                graph = clusterToGraphN(cluster, key,'none')
-                graph.annotate()
                 plotNovel(graph, cluster, os.path.join(args.outdir, 'novelGraphs', '%s.pdf'%nid))
             fout.write('%s\t%d\t%d\t-\t%d\t%s\n' % (key,
                                                     minpos,
@@ -1011,7 +1013,7 @@ if __name__ == '__main__':
         sys.stderr.write('%d (%0.2f%%) from novel genes\n' % (allNovel, float(allNovel)/len(allIsos)))
         sys.stderr.write('%d (%0.2f%%) spanning multiple  genes\n' % (allMulti, float(allMulti)/len(allIsos)))
     writeGtf(geneIsos)
-    #writeNovelGenes(novelClustersP, novelClustersN)
+    writeNovelGenes(novelClustersP, novelClustersN)
     
     polyAMap = {}
     for gene in geneReads:
