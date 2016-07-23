@@ -50,6 +50,9 @@ parser.add_argument('-w', '--w', dest="w",
 parser.add_argument('-m', '--minDist', dest="minDist",
                     action='store', type=int, default=20,
                     help='Minimum distance between any two poly(A) sites, default=20')
+parser.add_argument('-s', '--minSupport', dest="minSupport",
+                    action='store', type=int, default=2,
+                    help='Minimum number of trusted reads supporting a poly-A site, default=2')
 
 parser.add_argument('geneModel', action='store', 
                     type=str, help='Gene models annotation file (GFF/GTF)')
@@ -810,7 +813,7 @@ def getPeaks(depths):
                    i >= c and i - c + 1 < minDist:
                     break
             else:
-                if numpy.sum(depths[ max(0, i-w-1):min(N,i+w)]) >=2:
+                if numpy.sum(depths[ max(0, i-w-1):min(N,i+w)]) >= args.minSupport:
                     currPeaks[i] = depths[i]*2+numpy.median(depths[ max(0, i-w-1):min(N,i+w)])
         if numpy.max(currPeaks) ==0:
             break
